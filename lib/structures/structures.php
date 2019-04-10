@@ -7,17 +7,17 @@ class structure
 
 
   public function construct($sentence){
-
+    $sentence = trim($sentence);
     // layer 1: check first part only
     $firstPart = explode(", ",$sentence);
-    $this->findStructWord($firstPart[0],$sentence);
+    $this->findColon($firstPart[0],$sentence);
     $this->findNumber($firstPart[0],$sentence);
     return $this->struct_sentence;
 
 
   }
 
-  private function findStructWord($firstPart,$sentence){
+  private function findColon($firstPart,$sentence){
     $pos = strpos($firstPart, ': ');
     if ($pos!==false) {
         $this->struct_sentence = $this->addBraces($pos,$sentence);
