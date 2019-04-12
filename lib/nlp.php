@@ -2,6 +2,7 @@
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/database/dbconfig.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/structures/structures.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/segmentation/segmentation.php');
+require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/tokenization/tokenization.php');
 
 
 class nlp {
@@ -10,17 +11,10 @@ class nlp {
   * breaking the text apart into separate sentences
   **************************************************/
   public function segmentation($paragraph){
-    $starttime = microtime(true);
 
 
     $segmentation = new segmentation;
     $result = $segmentation->split2Sentence($paragraph);
-
-    $endtime = microtime(true);
-    $timediff = $endtime - $starttime;
-
-
-    echo "Speed: ".round($timediff,5)."<br/>";
 
     return $result;
 
@@ -40,9 +34,13 @@ class nlp {
   * input: a string as a sentence
   * output: array of words
   */
-  function tokenize($sentence){
-    $tokenizers = new tokenizers;
-    return $tokenizers->split2Word($sentence);
+  function tokenize($sentence,$option){
+    $tokenization = new tokenization;
+    if($option=="word" || $option=="w"){
+    return $tokenization->getWordTokens($sentence);
+    }
+    return $tokenization->getGroupTokens($sentence);
+
   }
 
   /**
