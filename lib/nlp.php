@@ -3,6 +3,7 @@ require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/database/dbconfig.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/structures/structures.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/segmentation/segmentation.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/tokenization/tokenization.php');
+require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/pos/pos.php');
 
 
 class nlp {
@@ -11,13 +12,15 @@ class nlp {
   * breaking the text apart into separate sentences
   **************************************************/
   public function segmentation($paragraph){
-
-
     $segmentation = new segmentation;
     $result = $segmentation->split2Sentence($paragraph);
-
     return $result;
+  }
 
+
+  public function pos($sentence){
+    $pos = new pos;
+    return $pos->guess($sentence);
   }
 
 
