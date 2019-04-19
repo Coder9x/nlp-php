@@ -18,9 +18,9 @@ class nlp {
   }
 
 
-  public function pos($sentence){
+  public function pos($tokens){
     $pos = new pos;
-    return $pos->guess($sentence);
+    return $pos->define($tokens);
   }
 
 

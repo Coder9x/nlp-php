@@ -5,15 +5,19 @@ class tokenization{
   var $punctuation = array(";",",","'","!");
   var $connectWords = array(" is "," are "," : ");
 
+  public function getWordTokens($sentence){
+    return explode(" ",$this->splitPunctuation($sentence));
+  }
+
+  public function getGroupTokens($sentence){
+    return explode("//",$this->markPunctuation($sentence));
+  }
+
   private function splitPunctuation($sentence){
     foreach ($this->punctuation as $value) {
       $sentence = str_replace($value," ".$value,$sentence);
     }
     return $sentence;
-  }
-
-  public function getWordTokens($sentence){
-    return explode(" ",$this->splitPunctuation($sentence));
   }
 
   private function markPunctuation($sentence){
@@ -25,12 +29,6 @@ class tokenization{
     }
     return $sentence;
   }
-
-  public function getGroupTokens($sentence){
-    return explode("//",$this->markPunctuation($sentence));
-  }
-
-
 
 }
 

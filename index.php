@@ -3,10 +3,12 @@ require('lib/nlp.php');
 require('lib/database/dbconfig.php');
 
 
+echo "<select>";
+
 $sql = "SELECT *  FROM `edb_eflora`";
 $result = $connection->query($sql);
 $curr = 0;
-$stop = 5;
+$stop = 15;
 
 $input = "";
 
@@ -15,12 +17,16 @@ if ($result->num_rows > 0) {
         $curr++;
         if($curr==$stop){
         //echo $row['text']."<br/>";
+        echo "<option value='volvo'>".$row['taxon']."</option>";
+
         $input = $row['text'];
         break;
         }
 
       }
 }
+
+echo "</select> <br/>";
 
 echo $input;
 $test_nlp = new nlp;
@@ -38,16 +44,25 @@ foreach($result as $sen){
     if($i==0){
       //echo "<dt>".$sub."<br/><mark>".$test_nlp->structure($sub)."</mark><dt>";
 
-      foreach ($test_nlp->tokenize($sub_sen,"g") as $value) {
-        echo "[".$value."]";
+      $tokens = $test_nlp->tokenize($sub_sen,"g");
+
+      foreach ( $tokens as $token) {
+        echo "[".$token."]";
       }
 
       echo "<br/>";
 
       // part of speech
-      $pos = $test_nlp->pos($sub_sen);
-      foreach ($pos as $pos_w) {
-        echo "{".$pos_w."}";
+      $token_index = 0;
+      foreach ($test_nlp->pos($tokens) as $p) {
+
+        echo "".trim($tokens[$token_index])."  ::: ";
+        $token_index++;
+
+        foreach ($p as $value) {
+           echo $value." ";
+        }
+        echo "<br/>";
       }
 
 
@@ -57,17 +72,27 @@ foreach($result as $sen){
     }else{
       //echo "<dd>".$sub."<br/><mark>".$test_nlp->structure($sub)."</mark><dd>";
 
-      foreach ($test_nlp->tokenize($sub_sen,"g") as $value) {
-        echo "[".$value."]";
+      $tokens = $test_nlp->tokenize($sub_sen,"g");
+
+      foreach ( $tokens as $token) {
+        echo "[".$token."]";
       }
 
       echo "<br/>";
 
       // part of speech
-      $pos = $test_nlp->pos($sub_sen);
-      foreach ($pos as $pos_w) {
-        echo "{".$pos_w."}";
+      $token_index = 0;
+      foreach ($test_nlp->pos($tokens) as $p) {
+
+        echo "".trim($tokens[$token_index])."  ::: ";
+        $token_index++;
+
+        foreach ($p as $value) {
+           echo $value." ";
+        }
+        echo "<br/>";
       }
+
 
       echo "<br/>";
 

@@ -2,64 +2,48 @@
 /**
  *
  */
+
+require('wordtype.php');
+
 class pos
 {
 
   var $structure = array();
 
-  public function guess($sentence){
-    $words = $this->sentence2Array($sentence);
-    //$this->buildStructure($words);
-    return $words;
-  }
+  public function define($tokens){
+    $wordtype = new wordtype;
 
+    foreach ($tokens as $token) {
+      $token = trim($token);
+      $words = explode(" ",$token);
 
-  private function buildStructure($words){
-    $index = 0;
-    foreach ($words as $word) {
-      if($this->isNumber($word)){
-        array_push($this->structure,"number");
-      }else if($this->isNoun($words,$index)){
-        array_push($this->structure,"noun");
-      }else {
-        array_push($this->structure,"?");
+      $stuct_token = array();
+      // create struct for each token
+      foreach ($words as $word) {
+        $word = $this->clean($word);
+        if($wordtype->isRangeNumber($word)){
+           array_push($stuct_token,"RN");
+        }else if($wordtype->isLengthUnits($word))
+          array_push($stuct_token,"UN");
+        else{
+           array_push($stuct_token,"__");
+        }
+
       }
+      // add struct to the sentence
+      array_push($this->structure,$stuct_token);
 
-      $index++;
+
     }
+    return $this->structure;
   }
-
-
- private function isNoun($words,$index){
-   // fist word & has s
-   if($index==0 && substr($words[0],-1)=='s'){
-     return true;
-   }
-
-
-   return false;
- }
-
- private function isNumber($word){
-   return is_numeric($word);
- }
-
- private function sentence2Array($sentence)
- {
-   $words = array();
-   $tmp_words = explode(", ",$sentence);
-   foreach ($tmp_words as $word) {
-     $cleaned_word = $this->clean($word);
-     if(strlen($cleaned_word)>0){
-       array_push($words,$cleaned_word);
-     }
-   }
-   return $words;
- }
 
  private function clean($string) {
-   $string = str_replace(' ', ',', $string);
-   return preg_replace('/[^A-Za-z0-9\-]/', ' ', $string);
+   $string = trim($string);
+   $string = str_replace(',', '', $string);
+   $string = str_replace('.', '', $string);
+   return $string;
+   //return preg_replace('/[^A-Za-z0-9\-]/', ' ', $string);
  }
 
 
