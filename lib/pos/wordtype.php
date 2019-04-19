@@ -2,6 +2,8 @@
 
 require('rangenumber.php');
 require('lengthunit.php');
+require('color.php');
+
 
 class wordtype {
 
@@ -15,6 +17,12 @@ class wordtype {
   public function isLengthUnits($word){
     $unit = new lengthunit;
     return $unit->isLengthUnits($word);
+  }
+
+  // colors : CL
+  public function isColor($word){
+    $color = new color;
+    return $color->isColor($word);
   }
 
   private function cleanWord(){

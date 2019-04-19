@@ -13,6 +13,7 @@ class pos
   public function define($tokens){
     $wordtype = new wordtype;
 
+    // process each  token 
     foreach ($tokens as $token) {
       $token = trim($token);
       $words = explode(" ",$token);
@@ -23,8 +24,11 @@ class pos
         $word = $this->clean($word);
         if($wordtype->isRangeNumber($word)){
            array_push($stuct_token,"RN");
-        }else if($wordtype->isLengthUnits($word))
+        }else if($wordtype->isLengthUnits($word)){
           array_push($stuct_token,"UN");
+        }else if($wordtype->isColor($word)){
+          array_push($stuct_token,"CL");
+        }
         else{
            array_push($stuct_token,"__");
         }
