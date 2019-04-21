@@ -54,7 +54,7 @@ foreach ($links as $link) {
         $syn = $text->plaintext;
       }
       if($line>5){
-        $content = $content.$text->plaintext;
+        $content = $content." ".$text->plaintext;
       }
     }
     $line++;

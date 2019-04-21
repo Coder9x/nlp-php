@@ -8,7 +8,7 @@ echo "<select>";
 $sql = "SELECT *  FROM `edb_eflora`";
 $result = $connection->query($sql);
 $curr = 0;
-$stop = 15;
+$stop = 90;
 
 $input = "";
 
@@ -54,7 +54,9 @@ foreach($result as $sen){
 
       // part of speech
       $token_index = 0;
-      foreach ($test_nlp->pos($tokens) as $p) {
+
+      $partofspeech = $test_nlp->ner($tokens);
+      foreach ($partofspeech as $p) {
 
         echo "".trim($tokens[$token_index])."  ::: ";
         $token_index++;
@@ -64,7 +66,8 @@ foreach($result as $sen){
         }
         echo "<br/>";
       }
-
+      //print_r($tokens);
+      //print_r($partofspeech);
 
       echo "<br/>";
 
@@ -82,7 +85,7 @@ foreach($result as $sen){
 
       // part of speech
       $token_index = 0;
-      foreach ($test_nlp->pos($tokens) as $p) {
+      foreach ($test_nlp->ner($tokens) as $p) {
 
         echo "".trim($tokens[$token_index])."  ::: ";
         $token_index++;
