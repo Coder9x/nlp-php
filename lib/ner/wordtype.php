@@ -1,8 +1,10 @@
 <?php
 
 require('rangenumber.php');
+require('singlenumber.php');
 require('lengthunit.php');
 require('color.php');
+
 
 
 class wordtype {
@@ -11,6 +13,12 @@ class wordtype {
   public function isRangeNumber($word){
       $RN = new rangenumber;
       return $RN->isRangeNumber($word);
+  }
+
+  // number : SN
+  public function isSingleNumber($word){
+    $sn = new singlenumber;
+    return $sn->isSingleNumber($word);
   }
 
   // units : UN
@@ -25,9 +33,10 @@ class wordtype {
     return $color->isColor($word);
   }
 
+
+
   private function cleanWord(){
     $word = trim($word);
-
   }
 
 

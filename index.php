@@ -1,9 +1,13 @@
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+
 <?php
 require('lib/nlp.php');
 require('lib/database/dbconfig.php');
 
 
-echo "<select>";
+echo "<select id='taxon'>";
 
 $sql = "SELECT *  FROM `edb_eflora`";
 $result = $connection->query($sql);
@@ -15,16 +19,32 @@ $input = "";
 if ($result->num_rows > 0) {
       while($row = $result->fetch_assoc()){
         $curr++;
-        if($curr==$stop){
+        if($curr<=$stop){
         //echo $row['text']."<br/>";
-        echo "<option value='volvo'>".$row['taxon']."</option>";
+        if($row['id']==$_GET['id']){
+          echo "<option id='".$row['id']."' selected>".$row['taxon']."</option>";
 
-        $input = $row['text'];
-        break;
+        }else{
+          echo "<option id='".$row['id']."'>".$row['taxon']."</option>";
+        }
+
         }
 
       }
 }
+
+$sql = "SELECT *  FROM `edb_eflora` WHERE `id`='".$_GET["id"]."'";
+$result = $connection->query($sql);
+
+$input = "";
+
+if ($result->num_rows > 0) {
+      while($row = $result->fetch_assoc()){
+        $input = $row['text'];
+        break;
+        }
+}
+
 
 echo "</select> <br/>";
 
@@ -37,6 +57,7 @@ $result = $test_nlp->segmentation($input);
 
 echo "<dl>";
 $starttime = microtime(true);
+$object = "";
 
 foreach($result as $sen){
   $i=0;
@@ -52,11 +73,11 @@ foreach($result as $sen){
 
       echo "<br/>";
 
-      // part of speech
+      // Named Entity Recognition
       $token_index = 0;
 
-      $partofspeech = $test_nlp->ner($tokens);
-      foreach ($partofspeech as $p) {
+      $ner = $test_nlp->ner($tokens);
+      foreach ($ner as $p) {
 
         echo "".trim($tokens[$token_index])."  ::: ";
         $token_index++;
@@ -67,6 +88,9 @@ foreach($result as $sen){
         echo "<br/>";
       }
       //print_r($tokens);
+
+      
+
       //print_r($partofspeech);
 
       echo "<br/>";
@@ -117,3 +141,17 @@ echo "Speed: ".round($timediff,5)."<br/>";
 
 
 ?>
+
+
+<script>
+
+$( "#taxon" ).change(function() {
+    var str = "";
+    str = $(this).children(":selected").attr("id");
+    window.location.href = 'http://localhost/nlp/nlp-php/index.php?id='+str;
+    //alert(str);
+
+});
+
+
+</script>

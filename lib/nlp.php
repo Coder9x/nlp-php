@@ -1,8 +1,8 @@
 <?php
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/database/dbconfig.php');
-require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/structures/structures.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/segmentation/segmentation.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/tokenization/tokenization.php');
+require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/ner/ner.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/pos/pos.php');
 
 
@@ -18,20 +18,12 @@ class nlp {
   }
 
 
-  public function pos($tokens){
-    $pos = new pos;
-    return $pos->define($tokens);
+  public function ner($tokens){
+    $ner = new ner;
+    return $ner->define($tokens);
   }
 
 
-  /*
-  * input: a long string as a paragraph
-  * output: array of sentences
-  */
-  function segment($paragraph){
-    $tokenizers = new tokenizers;
-    return $tokenizers->split2Sentence($paragraph);
-  }
 
   /**
   * input: a string as a sentence
@@ -50,9 +42,9 @@ class nlp {
   * input: a string as a sentence
   * output: array of structure
   */
-  function structure($sentence){
-    $structure = new structure;
-    return $structure->construct($sentence);
+  function pos($sentence){
+    $pos = new pos;
+    return $pos->construct($sentence);
   }
 
 }
