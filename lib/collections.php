@@ -68,7 +68,15 @@ class collections{
     $index_CL= strpos($string_types, '-CL')/3;
     if($index_CL>=0){
       if($this->isFlowerColor($index_CL)){
-         array_push($this->hits,"flower color");
+         array_push($this->hits,"Flower color");
+      }
+    }
+
+    // find color
+    $index_PL= strpos($string_types, '-PL')/3;
+    if($index_PL>=0){
+      if($this->isDistribution($index_PL)){
+         array_push($this->hits,"Geographic Distribution");
       }
     }
 
@@ -136,6 +144,13 @@ class collections{
 
     if($this->types[$index]=="CL"){
         return true;
+    }
+    return false;
+  }
+
+  public function isDistribution($index){
+    if($this->types[$index]=="PL"){
+      return true;
     }
     return false;
   }
