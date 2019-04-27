@@ -4,6 +4,7 @@ require('rangenumber.php');
 require('singlenumber.php');
 require('lengthunit.php');
 require('color.php');
+require('place.php');
 
 
 
@@ -33,6 +34,11 @@ class wordtype {
     return $color->isColor($word);
   }
 
+  // colors : CL
+  public function isPlace($word){
+    $place = new place;
+    return $place->isPlace($word);
+  }
 
 
   private function cleanWord(){

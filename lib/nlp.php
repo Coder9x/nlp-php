@@ -4,6 +4,7 @@ require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/segmentation/segmentation.ph
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/tokenization/tokenization.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/ner/ner.php');
 require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/pos/pos.php');
+require($_SERVER["DOCUMENT_ROOT"].'/nlp/nlp-php/lib/stopword/stopword.php');
 
 
 class nlp {
@@ -21,6 +22,11 @@ class nlp {
   public function ner($tokens){
     $ner = new ner;
     return $ner->define($tokens);
+  }
+
+  public function stopword($word){
+    $stopword = new stopword;
+    return $stopword->isStopWord($word);
   }
 
 

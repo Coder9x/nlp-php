@@ -2,7 +2,7 @@
 
 class tokenization{
 
-  var $punctuation = array(";",",","'","!");
+  var $punctuation = array(";",",","'","!","?");
   var $connectWords = array(" is "," are "," : ");
 
   public function getWordTokens($sentence){
