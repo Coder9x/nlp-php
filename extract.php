@@ -121,8 +121,6 @@ $( "#taxon" ).change(function() {
     var str = "";
     str = $(this).children(":selected").attr("id");
     window.location.href = 'http://localhost/nlp/nlp-php/extract.php?id='+str;
-    //alert(str);
-
 });
 
 

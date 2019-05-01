@@ -8,14 +8,17 @@ class lengthunit{
   }
 
   public function isLengthUnits($word){
-    foreach ($this->length_units as $unit) {
-      if($word==$unit){
-        return true;
+    if(strlen($word)<3){
+      foreach ($this->length_units as $unit) {
+        if($word==$unit || $word == $unit."."){
+          return true;
+        }
       }
+
     }
     return false;
   }
 
 }
 
- ?>
+?>

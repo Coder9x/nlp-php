@@ -102,7 +102,7 @@ foreach($result as $sen){
 
 
         foreach ($p as $value) {
-           echo $value." ";
+           //echo $value." ";
         }
         echo "<br/>";
       }

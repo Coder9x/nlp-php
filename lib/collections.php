@@ -7,8 +7,9 @@ class collections{
   var $hits = array();
 
   public function router($ner){
-    $point = 0;
+    require('lib/database/dbconfig.php');
 
+    /** split to types and words */
     foreach ($ner as $value) {
       $values = explode(":",$value);
       //echo "word: ".$values[1]."<Br/>";
@@ -19,146 +20,201 @@ class collections{
     //print_r($this->words);
     //print_r($this->types);
 
+    $tmp_key="";
+    $key_types = array(); // important for searching
+    $positions = array(); // position of key words
+    array_push($this->types,"__"); // add a closing mark
 
-    $string_types = "";
+    $curr = 0;
     foreach ($this->types as $type) {
-      $string_types=$string_types."-".$type;
-    }
-
-    //echo $string_types."<br/>";
-
-    // find units
-    $index_LU = strpos($string_types, '-LU');
-
-    // has units
-    if($index_LU>=0){
-      // if untis equal to "m" (meter)
-      //echo $this->words[$index_LU/3]."<br/>";
-      if($this->words[$index_LU/3]=="m"){
-        $index_RNLU = strpos($string_types, '-RN-LU');
-        $index_SNLU = strpos($string_types, '-SN-LU');
-
-        // convert to index of the array
-        $index_RNLU=$index_RNLU/3;
-        $index_SNLU=$index_SNLU/3;
-
-        //echo "index rnlu:".$index_RNLU."<br/>";
-        //echo "index snlu:".$index_SNLU."<br/>";
-
-        if($index_RNLU>=0) {
-            if($this->isElevation($index_RNLU)){
-               array_push($this->hits,"Evalation");
-            }
-            if($this->isHabit($index_RNLU)){
-               array_push($this->hits,"Habit");
-            }
-        }else if($index_SNLU>=0) {
-          if($this->isElevation($index_SNLU)){
-               array_push($this->hits,"Evalation");
-          }
-          if($this->isHabit($index_RNLU)){
-             array_push($this->hits,"Habit");
-          }
+      if($type!="__"){
+        $tmp_key=$tmp_key." ".$type;
+      }else{
+        if(strlen(trim($tmp_key))>0){
+          array_push($key_types,$tmp_key);
+          array_push($positions,$curr-strlen($tmp_key)/3);
         }
+        $tmp_key="";
+      }
+      $curr++;// keep track the positions
+    }
 
+    //print_r($this->types);
+    //print_r($this->words);
+    //print_r($positions);
+    //$combied_structures = array();
+    //$combied_ranges = array();
+
+    //$this->types = array_unique($this->types);
+    //print_r($key_types);
+
+    foreach ($key_types as $key_type) {
+      $sql = "SELECT morpheme.name as 'name',morpheme_type.structure as 'structure',morpheme_type.range as 'range'  FROM `morpheme_type` INNER JOIN `morpheme` ON morpheme.mid = morpheme_type.mid WHERE  '".trim($key_type)."'  LIKE  CONCAT('%', morpheme_type.structure, '%') ";
+      $result = $connection->query($sql);
+      if ($result->num_rows > 0) {
+        $offset_pos = 0;
+        while($row = $result->fetch_assoc()){
+          //echo $row['name']." ".$row['mid']."<br/>";
+          //echo $row['structure']."<br/>";
+          //echo $row['range']."<br/>"; //
+
+          $entity_range = $row['range']; // from DB
+          $entity_type= $row['structure']; // from DB
+
+          // has a rule for this object
+          if(strlen(trim($entity_range))>0){
+            $entity_word="";
+            //echo "keytype ".$key_type."<br/>";
+            $len = (strlen($entity_type)+1)/3;
+            //echo "len ".$len."<br/>";
+            //print_r($positions);
+            foreach ($positions as $pos) {
+              $passed = true;
+              //echo "type :".$entity_type."<br/>";
+              //echo "start pos: ".($pos+$offset_pos)."<br/>";
+              //echo "end pos: ".(($len+$pos-1)+$offset_pos)."<br/>";
+              //print_r($this->words);
+
+              for($i=$pos+$offset_pos;$i<=(($len+$pos-1)+$offset_pos);$i++){
+                if($i<sizeof($this->words)){
+                  $entity_word=$entity_word." ".$this->words[$i];
+                }
+
+              }
+
+              $offset_pos+=($len+$pos);
+
+
+              //echo "word: ".$entity_word." end loop <br/>";
+
+
+              $passed = $this->isInRange($entity_range,trim($entity_word),$entity_type);
+
+              if($passed){
+                //echo $row['name']."<br/>";
+                array_push($this->hits,$row['name']);
+              }
+
+            }
+          }else{
+            // no rule, just add them
+            array_push($this->hits,$row['name']);
+          }
+          //echo "<br/>";
+
+        }
+      }
+
+    }
+
+
+
+    //print_r($this->types);
+    //print_r($this->words);
+
+    for($i=0; $i<sizeof($this->words);$i++){
+      if($this->types[$i]=="__"){
+        $this->inWords($this->words[$i]);
       }
     }
 
-    // find color
-    $index_CL= strpos($string_types, '-CL')/3;
-    if($index_CL>=0){
-      if($this->isFlowerColor($index_CL)){
-         array_push($this->hits,"Flower color");
-      }
-    }
-
-    // find color
-    $index_PL= strpos($string_types, '-PL')/3;
-    if($index_PL>=0){
-      if($this->isDistribution($index_PL)){
-         array_push($this->hits,"Geographic Distribution");
-      }
-    }
-
-
-    // find __ tag
-    $index__=0;
-    foreach ($this->types as $type) {
-      if($type=="__"){
-        //echo "...".$this->words[$index__]."<br/>";
-        $this->inWords($this->words[$index__]);
-      }
-      $index__++;
-    }
-
-    return $this->hits;
+    return array_unique($this->hits);
 
 
   }
 
 
-  public function isElevation($index){
 
-      if($this->types[$index]=="SN"){
-        if($this->words[$index]>=0 && $this->words[$index]<=3000){
-          return true;
-        }
+
+  private function isInRange($ranges, $words,$types){
+
+    $result = true;
+    //echo $words." <Br/>";
+    $ranges = explode(" ",$ranges);
+    $words  = explode(" ",$words);
+    $types  = explode(" ",$types);
+
+    for($i=0;$i<sizeof($ranges);$i++){
+      if($types[$i]=="SN"){
+        $result= $this->compareSNs($ranges[$i],$words[$i]);
+      }else if($types[$i]=="RN"){
+        $result= $this->compareRNs($ranges[$i],$words[$i]);
+      }else if ($types[$i]=="LU"){
+        $words[$i] = $this->cleanWord($words[$i]);
+        $result= $this->compareList($ranges[$i],$words[$i]);
+      }else if ($types[$i]=="CL"){
+        $words[$i] = $this->cleanWord($words[$i]);
+        $result= $this->compareList($ranges[$i],$words[$i]);
       }
-      if($this->types[$index]=="RN"){
-        $values = explode("–",$this->words[$index]);
-        if(sizeof($values)<2){
-          $values = explode("-",$this->words[$index]);
-        }
-        if($values[0]>=0 && $values[1]<=6000){
-          return true;
-        }
+      if(!$result){
+        return false;
       }
+    }
+
+    return true;
   }
 
 
-  public function isHabit($index){
 
-    if($this->types[$index]=="SN"){
-      if(($this->words[$index])>=0.1 && ($this->words[$index])<=10){
 
-        return true;
-      }
-    }
-    if($this->types[$index]=="RN"){
-      $values = explode("–",$this->words[$index]);
-      if(sizeof($values)<2){
-        $values = explode("-",$this->words[$index]);
-      }
 
-      if(($values[0])>=0.1 && ($values[1])<=10){
+  private function compareList($range,$word){
+    $ranges = explode(",",$range);
+    foreach ($ranges as $range) {
+      if($word==$range){
         return true;
       }
     }
 
     return false;
 
-
   }
 
-  public function isFlowerColor($index){
+  private function compareSNs($range, $word){
+    //echo $range." ".$word."<br/>";
+    $arr_range = explode("-",$range);
+    $min_range = $arr_range[0];
+    $max_range = $arr_range[1];
 
-    if($this->types[$index]=="CL"){
-        return true;
-    }
-    return false;
-  }
-
-  public function isDistribution($index){
-    if($this->types[$index]=="PL"){
+    if($word >= $min_range && $word <=$max_range){
       return true;
     }
     return false;
+
   }
 
+  private function compareRNs($range, $word){
+
+    $arr_range = explode("-",$range);
+    $min_range = $arr_range[0];
+    $max_range = $arr_range[1];
+    $diff_min_range = $arr_range[2];
+    $diff_max_range = $arr_range[3];
+
+
+    $arr_word = explode("–",$word);
+    if(sizeof($arr_word)<2){
+      $arr_word = explode("-",$word);
+    }
+
+    if(sizeof($arr_word)<2){
+      return false;
+    }
+    $min_word = $arr_word[0];
+    $max_word = $arr_word[1];
+    $diff_word = $arr_word[1]-$arr_word[0];
+
+
+    if($min_word >= $min_range && $max_word <=$max_range
+      && $diff_word<=$diff_max_range   && $diff_word>=$diff_min_range
+      ){
+      return true;
+    }
+    return false;
 
 
 
-
+  }
 
 
   private function inWords($key){
@@ -169,7 +225,7 @@ class collections{
 
       while($row = $result->fetch_assoc()){
         array_push($this->hits,$row["name"]);
-        }
+      }
     }
     return false;
 
@@ -183,6 +239,12 @@ class collections{
     }else{
       return $word;
     }
+  }
+
+  private function cleanWord($word){
+    $word = str_replace("?","",$word);
+    $word = str_replace(".","",$word);
+    return $word;
   }
 
 

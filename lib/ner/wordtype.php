@@ -34,7 +34,7 @@ class wordtype {
     return $color->isColor($word);
   }
 
-  // colors : CL
+  // Places: PL 
   public function isPlace($word){
     $place = new place;
     return $place->isPlace($word);
