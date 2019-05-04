@@ -11,7 +11,7 @@ class flow {
       if(sizeof($array_tags[$index_tags])>0){
         $this->sortTags($array_tags[$index_tags]); // set value for array tags
       }else{
-        array_push($this->sorted_array_tags,0);
+        array_push($this->percent_array_tags ,0);
       }
     }
 
@@ -31,7 +31,7 @@ class flow {
 
 
 
-   print_r($this->sorted_array_tags);
+   print_r($this->percent_array_tags );
 
   }
 
@@ -41,11 +41,11 @@ class flow {
 
         if($curr_tags[$i]==$prv_tags[$z]){
           // fomular to update the related
-          $p_curr = $this->sorted_array_tags[$curr_index][$i];
+          $p_curr = $this->percent_array_tags [$curr_index][$i];
           $p_remain = 100-$p_curr;
-          $p_prv = $this->sorted_array_tags[$curr_index+$offset][$z];
+          $p_prv = $this->percent_array_tags [$curr_index+$offset][$z];
           $p_plus = ($p_prv*$p_remain/100);
-          $this->sorted_array_tags[$curr_index][$i]=$p_curr+$p_plus;
+          $this->percent_array_tags [$curr_index][$i]=$p_curr+$p_plus;
 
         }
       }
@@ -59,7 +59,7 @@ class flow {
       foreach ($tags as $tag) {
         array_push($sorted_tags,100/$size);
       }
-      array_push($this->sorted_array_tags,$sorted_tags);
+      array_push($this->percent_array_tags ,$sorted_tags);
   }
 
 

@@ -6,6 +6,7 @@
 require('lib/nlp.php');
 require('lib/database/dbconfig.php');
 require('lib/collections.php');
+require('lib/flow/flow.php');
 
 
 echo "<select id='taxon'>";
@@ -75,11 +76,16 @@ foreach($result as $sen){
       // Named Entity Recognition
       $token_index = 0;
       $ner = $test_nlp->ner($tokens);
+
+      $array_tags = array();
+
       foreach ($ner as $value) {
 
            $collections = new collections;
            $result = $collections->router($value);
-           //print_r($value);
+           //print_r($result);
+           array_push($array_tags,$result);
+
            foreach ($value as $val) {
              //echo "[".$val."]";
            }
@@ -96,6 +102,11 @@ foreach($result as $sen){
 
         echo "<br/>";
       }
+
+      //print_r($array_tags);
+      $flows = new flow;
+      $flows->sentenceFlow($array_tags);
+
       echo "<br/>";
 
 
